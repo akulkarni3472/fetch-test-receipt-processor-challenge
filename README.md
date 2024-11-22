@@ -8,7 +8,7 @@ curl http://localhost:8080/receipts/process \
     --include \
     --header "Content-Type: application/json" \
     --request "POST" \
-    --data '{"id":2,"retailer":"Petsmart","purchaseDate":"2024-11-25","purchaseTime":"16:02","total":30.00,"items":[{"shortDescription":"Chew Toy","price":10.00},{"shortDescription":"Dog Treats","price":20.00}]}'
+    --data '{"id":2,"retailer":"retailer_name","purchaseDate":"000-00-00","purchaseTime":"00:00","total":0.00,"items":[{"shortDescription":"product-description","price":0.00},{"shortDescription":"product-description","price":0.00}]}'
 ```
 
 To GET all receipts
