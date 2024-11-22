@@ -23,24 +23,6 @@ type Item struct {
 
 var receipts []Receipt
 
-/*{
-	{Id:1,Retailer:"Walmart",PurchaseDate:"2023-04-05",PurchaseTime:"12:32",Total:31.43,Items:[
-        {ShortDescription:"Digital Clock",Price:30.00},
-        {ShortDescription:"Candybar",Price:1.43}
-        ]
-    },
-	{Id:2,Retailer:"Home Depot",PurchaseDate:"2022-07-12",PurchaseTime:"15:34",Total:15.35,Items:[
-        {ShortDescription:"Hammer",Price:15.00},
-        {ShortDescription:"Nails",Price:0.35}
-        ]
-    },
-	{Id:3,Retailer:"Petsmart",PurchaseDate:"2024-11-25",PurchaseTime:"16:02",Total:30.00,Items:[
-        {ShortDescription:"Chew Toy",Price:10.00},
-        {ShortDescription:"Dog Treats",Price:20.00}
-        ]
-    },
-}*/
-
 func createReceipt(c *gin.Context) {
 	var newReceipt Receipt
 	if err := c.BindJSON(&newReceipt); err != nil {
@@ -71,7 +53,20 @@ func getReceiptById(c *gin.Context) {
 }
 
 func getReceiptPointsById(c *gin.Context) {
-
+	rec_points := 0
+	id := c.Param("id")
+	id_int, err := strconv.Atoi(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "id not found"})
+	}
+	for _, a := range receipts {
+		if a.Id == id_int {
+			//TODO Points Calculation
+			c.IndentedJSON(http.StatusOK, rec_points)
+			return
+		}
+	}
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "receipt not found"})
 }
 
 func handleRequests() {

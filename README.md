@@ -1,3 +1,26 @@
+# Instructions to Run
+In order to run
+enter `go run main.go` in terminal
+
+to POST new receipt
+```bash
+curl http://localhost:8080/receipts/process \
+    --include \
+    --header "Content-Type: application/json" \
+    --request "POST" \
+    --data '{"id":2,"retailer":"Petsmart","purchaseDate":"2024-11-25","purchaseTime":"16:02","total":30.00,"items":[{"shortDescription":"Chew Toy","price":10.00},{"shortDescription":"Dog Treats","price":20.00}]}'
+```
+
+To GET all receipts
+`http://localhost:8080/receipts/`
+
+To GET receipt by `id`
+`http://localhost:8080/receipts/:id`
+
+To GET receipt points by `id`
+`http://localhost:8080/receipts/:id/points`
+
+
 # Receipt Processor
 
 Build a webservice that fulfils the documented API. The API is described below. A formal definition is provided 
