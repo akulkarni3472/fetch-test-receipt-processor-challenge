@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"math"
 	"net/http"
+	"regexp"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -54,6 +57,7 @@ func getReceiptById(c *gin.Context) {
 
 func getReceiptPointsById(c *gin.Context) {
 	rec_points := 0
+	var alphanumeric = regexp.MustCompile("^[a-zA-Z0-9_]*$")
 	id := c.Param("id")
 	id_int, err := strconv.Atoi(id)
 	if err != nil {
@@ -61,7 +65,26 @@ func getReceiptPointsById(c *gin.Context) {
 	}
 	for _, a := range receipts {
 		if a.Id == id_int {
-			//TODO Points Calculation
+			if a.Retailer != "" {
+				for i := 0; i < len(a.Retailer); i++ {
+					if alphanumeric.MatchString(string(a.Retailer[i])) {
+						fmt.Println(string(a.Retailer[i]))
+						rec_points++
+					}
+				}
+			}
+			if a.Total > 0.0 {
+				if a.Total == float32(math.Trunc(float64(a.Total))) {
+					rec_points += 50
+				}
+				if (math.Mod(float64(a.Total), 0.25)) == 0.0 {
+					rec_points += 25
+				}
+			}
+			if len(a.Items) > 0 {
+				item_points := int(len(a.Items) / 2)
+				rec_points += item_points * 5
+			}
 			c.IndentedJSON(http.StatusOK, rec_points)
 			return
 		}
