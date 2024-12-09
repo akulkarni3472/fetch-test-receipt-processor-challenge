@@ -2,7 +2,8 @@
 In order to run
 enter `go run main.go` in terminal
 
-to POST new receipt
+
+to POST new receipt, run the following in new terminal window
 ```bash
 curl http://localhost:8080/receipts/process \
     --include \

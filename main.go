@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,13 +15,13 @@ type Receipt struct {
 	Retailer     string  `json:"retailer,omitempty"`
 	PurchaseDate string  `json:"purchaseDate,omitempty"`
 	PurchaseTime string  `json:"purchaseTime,omitempty"`
-	Total        float32 `json:"total,omitempty"`
+	Total        float64 `json:"total,omitempty"`
 	Items        []Item  `json:"items,omitempty"`
 }
 
 type Item struct {
 	ShortDescription string  `json:"shortDescription,omitempty"`
-	Price            float32 `json:"price,omitempty"`
+	Price            float64 `json:"price,omitempty"`
 }
 
 var receipts []Receipt
@@ -66,24 +66,55 @@ func getReceiptPointsById(c *gin.Context) {
 	for _, a := range receipts {
 		if a.Id == id_int {
 			if a.Retailer != "" {
+				//Alphanumeric Retailer Points
 				for i := 0; i < len(a.Retailer); i++ {
 					if alphanumeric.MatchString(string(a.Retailer[i])) {
-						fmt.Println(string(a.Retailer[i]))
 						rec_points++
 					}
 				}
 			}
 			if a.Total > 0.0 {
-				if a.Total == float32(math.Trunc(float64(a.Total))) {
+				//Round Total Points
+				if a.Total == float64(math.Trunc(float64(a.Total))) {
 					rec_points += 50
 				}
+				//Divisble By 0.25 Points
 				if (math.Mod(float64(a.Total), 0.25)) == 0.0 {
 					rec_points += 25
 				}
 			}
 			if len(a.Items) > 0 {
+				//Item List Points
 				item_points := int(len(a.Items) / 2)
 				rec_points += item_points * 5
+				//Trimmed Length Points
+				for i := 0; i < len(a.Items); i++ {
+					if len(strings.TrimSpace(a.Items[i].ShortDescription))%3 == 0 {
+						rec_points += int(math.Round(a.Items[i].Price * 0.2))
+					}
+				}
+			}
+			//Odd day points
+			if a.PurchaseDate != "" {
+				var day = string(a.PurchaseDate[8:10])
+				day_int, err := strconv.Atoi(day)
+				if err != nil {
+					c.IndentedJSON(http.StatusNotFound, gin.H{"message": "id not found"})
+				}
+				if day_int%2 != 0 {
+					rec_points += 6
+				}
+			}
+			//Time Points
+			if a.PurchaseTime != "" {
+				var timeHours = string(a.PurchaseTime[0:2])
+				hours_int, err := strconv.Atoi(timeHours)
+				if err != nil {
+					c.IndentedJSON(http.StatusNotFound, gin.H{"message": "id not found"})
+				}
+				if (hours_int >= 14) && (hours_int <= 16) {
+					rec_points += 10
+				}
 			}
 			c.IndentedJSON(http.StatusOK, rec_points)
 			return
